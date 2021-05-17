@@ -12,6 +12,7 @@ export default function Jobs({user}){
     const [page, setPage] = useState(1); 
     const [lastPage, setLastPage] = useState(10); 
 
+    const [awaitingServer, setAwaitingServer] = useState(false); 
 
     const jobDetailClickHandler = (id) => {
         setJobDetailsId(id); 
@@ -23,7 +24,9 @@ export default function Jobs({user}){
     useEffect(()=>{
         (async function(){
             try{
+             setAwaitingServer(true);
              const response = await baseURL.get(`/jobs?page=${page}&limit=5`);
+             setAwaitingServer(false); 
              if (response.status === 200) {
                  setJobs(response.data.jobs);
                  setLastPage(response.data.pages[1]);
@@ -44,6 +47,15 @@ export default function Jobs({user}){
 
         <div className={jobDetailsId.length > 0 ? "container-for-jobs" : "container-for-jobs-altr"}>
             <div className="container-job-results">
+
+                {
+                    awaitingServer ? <div>
+                        <div className="title is-5 has-text-centered">Waiting for Slow Heroku Server...</div>
+                    <progress class="progress is-danger" max="100">30%</progress>
+                    </div> 
+                    : null
+                }
+
                 {jobs.map((job)=>{
                     return <ResultJob key={job._id} 
                     companyName={job.companyName} salaryRange={job.salaryRange}
